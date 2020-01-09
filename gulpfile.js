@@ -61,8 +61,8 @@ var DIST_DIR = BUILD_DIR + "dist/";
 var COMMON_WEB_FILES = ["web/images/*.{png,svg,gif,cur}", "web/debugger.js"];
 var MOZCENTRAL_DIFF_FILE = "mozcentral.diff";
 
-var REPO = "git@github.com:mozilla/pdf.js.git";
-var DIST_REPO_URL = "https://github.com/mozilla/pdfjs-dist";
+var REPO = "git@github.com:magloft/pdf.js.git";
+var DIST_REPO_URL = "https://github.com/magloft/pdfjs-dist";
 
 var builder = require("./external/builder/builder.js");
 
@@ -1533,11 +1533,11 @@ gulp.task(
       rimraf.sync(path.join(DIST_DIR, "*"));
 
       // Rebuilding manifests
-      var DIST_NAME = "pdfjs-dist";
+      var DIST_NAME = "@magloft/pdfjs-dist";
       var DIST_DESCRIPTION = "Generic build of Mozilla's PDF.js library.";
       var DIST_KEYWORDS = ["Mozilla", "pdf", "pdf.js"];
-      var DIST_HOMEPAGE = "http://mozilla.github.io/pdf.js/";
-      var DIST_BUGS_URL = "https://github.com/mozilla/pdf.js/issues";
+      var DIST_HOMEPAGE = "http://magloft.github.io/pdf.js/";
+      var DIST_BUGS_URL = "https://github.com/magloft/pdf.js/issues";
       var DIST_LICENSE = "Apache-2.0";
       var npmManifest = {
         name: DIST_NAME,
@@ -1646,9 +1646,9 @@ gulp.task(
     console.log("### Committing changes");
 
     var reason = process.env["PDFJS_UPDATE_REASON"];
-    // Attempt to work-around the broken link, see https://github.com/mozilla/pdf.js/issues/10391
+    // Attempt to work-around the broken link, see https://github.com/magloft/pdf.js/issues/10391
     if (typeof reason === "string") {
-      var reasonParts = /^(See )(mozilla\/pdf\.js)@tags\/(v\d+\.\d+\.\d+)\s*$/.exec(
+      var reasonParts = /^(See )(magloft\/pdf\.js)@tags\/(v\d+\.\d+\.\d+)\s*$/.exec(
         reason
       );
 

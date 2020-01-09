@@ -1,5 +1,5 @@
 {
-  "name": "pdf.js",
+  "name": "@magloft/pdf.js",
   "version": "2.0.0",
   "devDependencies": {
     "@babel/core": "^7.7.7",
