@@ -1196,7 +1196,12 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
       var xobjs = resources.get("XObject") || Dict.empty;
       var patterns = resources.get("Pattern") || Dict.empty;
       var stateManager = new StateManager(initialState);
-      var preprocessor = new EvaluatorPreprocessor(stream, xref, stateManager);
+      var preprocessor = new EvaluatorPreprocessor(
+        stream,
+        xref,
+        stateManager,
+        resources
+      );
       var timeSlotManager = new TimeSlotManager();
 
       function closePendingRestoreOPS(argument) {
@@ -1672,7 +1677,12 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
       var xobjs = null;
       var skipEmptyXObjs = Object.create(null);
 
-      var preprocessor = new EvaluatorPreprocessor(stream, xref, stateManager);
+      var preprocessor = new EvaluatorPreprocessor(
+        stream,
+        xref,
+        stateManager,
+        resources
+      );
 
       var textState;
 
@@ -1775,6 +1785,11 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
       function runBidiTransform(textChunk) {
         var str = textChunk.str.join("");
         var bidiResult = bidi(str, -1, textChunk.vertical);
+        const {
+          fontWeight,
+          fontStyle,
+        } = stateManager.state.font.getFontProps();
+        const fontSize = textChunk.height; // @TODO: Validate correctness and try edge cases
         return {
           str: normalizeWhitespace
             ? replaceWhitespace(bidiResult.str)
@@ -1784,6 +1799,10 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
           height: textChunk.height,
           transform: textChunk.transform,
           fontName: textChunk.fontName,
+          color: stateManager.state.fillColor,
+          fontWeight,
+          fontStyle,
+          fontSize,
         };
       }
 
@@ -3509,7 +3528,7 @@ var EvaluatorPreprocessor = (function EvaluatorPreprocessorClosure() {
 
   const MAX_INVALID_PATH_OPS = 20;
 
-  function EvaluatorPreprocessor(stream, xref, stateManager) {
+  function EvaluatorPreprocessor(stream, xref, stateManager, resources) {
     this.opMap = getOPMap();
     // TODO(mduan): pass array of knownCommands rather than this.opMap
     // dictionary
@@ -3520,6 +3539,12 @@ var EvaluatorPreprocessor = (function EvaluatorPreprocessorClosure() {
     this.stateManager = stateManager;
     this.nonProcessedArgs = [];
     this._numInvalidPathOPS = 0;
+    this.resources = resources;
+    this.xref = xref;
+    var state = this.stateManager.state;
+    state.textRenderingMode = TextRenderingMode.FILL;
+    state.fillColorSpace = ColorSpace.singletons.gray;
+    state.fillColor = [0, 0, 0];
   }
 
   EvaluatorPreprocessor.prototype = {
@@ -3640,6 +3665,7 @@ var EvaluatorPreprocessor = (function EvaluatorPreprocessorClosure() {
       fn,
       args
     ) {
+      const state = this.stateManager.state;
       switch (fn | 0) {
         case OPS.save:
           this.stateManager.save();
@@ -3649,6 +3675,28 @@ var EvaluatorPreprocessor = (function EvaluatorPreprocessorClosure() {
           break;
         case OPS.transform:
           this.stateManager.transform(args);
+          break;
+        case OPS.setFillColorSpace:
+          state.fillColorSpace = ColorSpace.parse(
+            args[0],
+            this.xref,
+            this.resources
+          );
+          break;
+        case OPS.setFillColor:
+          state.fillColor = state.fillColorSpace.getRgb(args, 0);
+          break;
+        case OPS.setFillGray:
+          state.fillColorSpace = ColorSpace.singletons.gray;
+          state.fillColor = ColorSpace.singletons.gray.getRgb(args, 0);
+          break;
+        case OPS.setFillCMYKColor:
+          state.fillColorSpace = ColorSpace.singletons.cmyk;
+          state.fillColor = ColorSpace.singletons.cmyk.getRgb(args, 0);
+          break;
+        case OPS.setFillRGBColor:
+          state.fillColorSpace = ColorSpace.singletons.rgb;
+          state.fillColor = ColorSpace.singletons.rgb.getRgb(args, 0);
           break;
       }
     },

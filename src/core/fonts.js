@@ -1482,6 +1482,23 @@ var Font = (function FontClosure() {
       return data;
     },
 
+    getFontProps: function Font_getFontProps() {
+      const { name } = this;
+      let fontName = name.replace(/[,_]/g, "-");
+      const stdFontMap = getStdFontMap();
+      const nonStdFontMap = getNonStdFontMap();
+      fontName = stdFontMap[fontName] || nonStdFontMap[fontName] || fontName;
+      const bold = fontName.search(/bold/gi) !== -1;
+      const italic =
+        fontName.search(/oblique/gi) !== -1 ||
+        fontName.search(/italic/gi) !== -1;
+      const black = name.search(/Black/g) !== -1;
+      return {
+        fontWeight: bold || black ? "bold" : "normal",
+        fontStyle: italic ? "italic" : "normal",
+      };
+    },
+
     fallbackToSystemFont: function Font_fallbackToSystemFont() {
       this.missingFile = true;
       var charCode, unicode;
