@@ -1673,6 +1673,12 @@ gulp.task(
     console.log(
       "  cd " + DIST_DIR + "; git push --tags " + DIST_REPO_URL + " master"
     );
+    console.log("Deploy worker with");
+    console.log(
+      "  gsutil cp build/dist/build/pdf.worker.min.js gs://cdn.magloft.com/pdf.js/" +
+        VERSION +
+        "/pdf.worker.min.js"
+    );
     console.log();
     done();
   })

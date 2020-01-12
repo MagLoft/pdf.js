@@ -1785,10 +1785,13 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
       function runBidiTransform(textChunk) {
         var str = textChunk.str.join("");
         var bidiResult = bidi(str, -1, textChunk.vertical);
-        const {
-          fontWeight,
-          fontStyle,
-        } = stateManager.state.font.getFontProps();
+        var fontWeight = "normal";
+        var fontStyle = "normal";
+        if (stateManager.state.font) {
+          var props = stateManager.state.font.getFontProps();
+          fontWeight = props.fontWeight;
+          fontStyle = props.fontStyle;
+        }
         const fontSize = textChunk.height; // @TODO: Validate correctness and try edge cases
         return {
           str: normalizeWhitespace
