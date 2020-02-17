@@ -31,12 +31,14 @@
 
   "rules": {
     // Plugins
+    "import/extensions": ["error", "always", { "ignorePackages": true, }],
     "import/no-unresolved": "error",
     "mozilla/avoid-removeChild": "error",
     "mozilla/use-includes-instead-of-indexOf": "error",
     "no-unsanitized/method": "error",
     "no-unsanitized/property": "error",
     "unicorn/no-array-instanceof": "error",
+    "unicorn/prefer-starts-ends-with": "error",
 
     // Possible errors
     "for-direction": "error",
@@ -126,6 +128,9 @@
       "args": "none",
     }],
 
+    // Node.js and CommonJS
+    "no-buffer-constructor": "error",
+
     // Stylistic Issues
     "lines-between-class-members": ["error", "always"],
     "max-len": ["error", {
@@ -136,8 +141,9 @@
     "new-cap": ["error", { "newIsCap": true, "capIsNew": false, }],
     "no-array-constructor": "error",
     "no-multiple-empty-lines": ["error", { "max": 1, "maxEOF": 0, "maxBOF": 1, }],
-    "no-nested-ternary": "off",
+    "no-nested-ternary": "error",
     "no-new-object": "error",
+    "no-unneeded-ternary": "error",
     "spaced-comment": ["error", "always", {
       "block": {
         "balanced": true,
@@ -159,7 +165,7 @@
     "object-shorthand": ["error", "always", {
       "avoidQuotes": true,
     }],
-    "prefer-const": "off",
+    "prefer-const": "error",
     "sort-imports": ["error", {
       "ignoreCase": true,
     }],
