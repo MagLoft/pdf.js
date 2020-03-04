@@ -3768,10 +3768,13 @@ var EvaluatorPreprocessor = (function EvaluatorPreprocessorClosure() {
           this.stateManager.transform(args);
           break;
         case OPS.setFillColorSpace:
+          const pdfFunctionFactory = this.resources.xref.pdfManager.pdfDocument
+            .pdfFunctionFactory;
           state.fillColorSpace = ColorSpace.parse(
             args[0],
             this.xref,
-            this.resources
+            this.resources,
+            pdfFunctionFactory
           );
           break;
         case OPS.setFillColor:
