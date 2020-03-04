@@ -795,6 +795,26 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
       return glyphs;
     },
 
+    ensureStateFont(state) {
+      if (state.font) {
+        return;
+      }
+      const reason = new FormatError(
+        "Missing setFont (Tf) operator before text rendering operator."
+      );
+
+      if (this.options.ignoreErrors) {
+        // Missing setFont operator before text rendering operator -- sending
+        // unsupported feature notification and allow rendering to continue.
+        this.handler.send("UnsupportedFeature", {
+          featureId: UNSUPPORTED_FEATURES.font,
+        });
+        warn(`ensureStateFont: "${reason}".`);
+        return;
+      }
+      throw reason;
+    },
+
     setGState: function PartialEvaluator_setGState(
       resources,
       gState,
@@ -1369,9 +1389,17 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
               );
               return;
             case OPS.showText:
+              if (!stateManager.state.font) {
+                self.ensureStateFont(stateManager.state);
+                continue;
+              }
               args[0] = self.handleText(args[0], stateManager.state);
               break;
             case OPS.showSpacedText:
+              if (!stateManager.state.font) {
+                self.ensureStateFont(stateManager.state);
+                continue;
+              }
               var arr = args[0];
               var combinedGlyphs = [];
               var arrLength = arr.length;
@@ -1391,11 +1419,19 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
               fn = OPS.showText;
               break;
             case OPS.nextLineShowText:
+              if (!stateManager.state.font) {
+                self.ensureStateFont(stateManager.state);
+                continue;
+              }
               operatorList.addOp(OPS.nextLine);
               args[0] = self.handleText(args[0], stateManager.state);
               fn = OPS.showText;
               break;
             case OPS.nextLineSetSpacingShowText:
+              if (!stateManager.state.font) {
+                self.ensureStateFont(stateManager.state);
+                continue;
+              }
               operatorList.addOp(OPS.nextLine);
               operatorList.addOp(OPS.setWordSpacing, [args.shift()]);
               operatorList.addOp(OPS.setCharSpacing, [args.shift()]);
@@ -2078,6 +2114,10 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
               textState.textLineMatrix = IDENTITY_MATRIX.slice();
               break;
             case OPS.showSpacedText:
+              if (!stateManager.state.font) {
+                self.ensureStateFont(stateManager.state);
+                continue;
+              }
               var items = args[0];
               var offset;
               for (var j = 0, jj = items.length; j < jj; j++) {
@@ -2127,14 +2167,26 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
               }
               break;
             case OPS.showText:
+              if (!stateManager.state.font) {
+                self.ensureStateFont(stateManager.state);
+                continue;
+              }
               buildTextContentItem(args[0]);
               break;
             case OPS.nextLineShowText:
+              if (!stateManager.state.font) {
+                self.ensureStateFont(stateManager.state);
+                continue;
+              }
               flushTextContentItem();
               textState.carriageReturn();
               buildTextContentItem(args[0]);
               break;
             case OPS.nextLineSetSpacingShowText:
+              if (!stateManager.state.font) {
+                self.ensureStateFont(stateManager.state);
+                continue;
+              }
               flushTextContentItem();
               textState.wordSpacing = args[0];
               textState.charSpacing = args[1];
@@ -2395,7 +2447,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
           if (!properties.file) {
             if (/Symbol/i.test(properties.name)) {
               encoding = SymbolSetEncoding;
-            } else if (/Dingbats/i.test(properties.name)) {
+            } else if (/Dingbats|Wingdings/i.test(properties.name)) {
               encoding = ZapfDingbatsEncoding;
             }
           }
