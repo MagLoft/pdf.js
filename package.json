@@ -59,7 +59,8 @@
   },
   "scripts": {
     "postinstall": "node -e \"require('child_process').execSync('cross-env PUPPETEER_PRODUCT=firefox node node_modules/puppeteer/install.js');\"",
-    "test": "gulp npm-test"
+    "test": "gulp npm-test",
+    "deploy": "gulp dist-repo-git; sed -i '' -e 's/\"pdfjs-dist\"/\"@magloft\\/pdfjs-dist\"/g' build/dist/package.json; cd build/dist/; cat package.json; npm publish"
   },
   "repository": {
     "type": "git",
